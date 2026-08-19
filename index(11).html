@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GAZ DISPO — Abidjan</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ffa630">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root{
+  --bg:#12151c;
+  --panel:#1a2029;
+  --panel-2:#212836;
+  --border:#2a3140;
+  --text:#ecece6;
+  --muted:#8d94a6;
+  --green:#37c77f;
+  --green-dim:#1f4d38;
+  --red:#ff5c5c;
+  --red-dim:#4d2226;
+  --orange:#ffa630;
+  --grey:#4b5164;
+  --display: 'Oswald', sans-serif;
+  --body: 'IBM Plex Sans', sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--body);}
+body{-webkit-font-smoothing:antialiased;}
+.app{max-width:520px;margin:0 auto;padding:18px 14px 40px;background:var(--bg);min-height:100%;position:relative;}
+
+.config-warning{background:var(--red-dim);border:1px solid var(--red);color:var(--red);font-family:var(--mono);font-size:12px;line-height:1.6;padding:14px;border-radius:8px;margin-bottom:16px;display:none;}
+.config-warning code{background:#00000040;padding:1px 5px;border-radius:4px;}
+
+.toast{position:sticky;top:8px;z-index:40;background:var(--green-dim);border:1px solid var(--green);color:var(--green);font-family:var(--mono);font-size:12px;padding:10px 12px;border-radius:8px;margin-bottom:10px;display:none;cursor:pointer;}
+
+.header{text-align:center;padding:6px 0 14px;}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--orange);text-transform:uppercase;margin:0 0 4px;}
+.title{font-family:var(--display);font-weight:700;font-size:30px;letter-spacing:.02em;margin:0;color:var(--text);}
+.title span{color:var(--orange);}
+.subtitle{font-family:var(--body);font-size:13px;color:var(--muted);margin:6px 0 0;}
+
+.gauge-wrap{display:flex;flex-direction:column;align-items:center;margin:18px 0 6px;}
+.gauge-readout{font-family:var(--mono);font-size:34px;font-weight:600;margin-top:-38px;color:var(--text);}
+.gauge-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-top:2px;}
+.gauge-sub{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:2px;text-align:center;}
+
+.loc-row{display:flex;justify-content:center;margin-top:10px;}
+.loc-btn{font-family:var(--mono);font-size:11px;background:var(--panel);border:1px solid var(--border);color:var(--muted);padding:7px 12px;border-radius:20px;cursor:pointer;}
+.loc-btn.active{border-color:var(--orange);color:var(--orange);}
+
+.tabs{display:flex;gap:6px;overflow-x:auto;margin:18px 0 14px;padding-bottom:2px;}
+.tab{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;background:var(--panel);border:1px solid var(--border);color:var(--muted);padding:9px 13px;border-radius:7px;cursor:pointer;white-space:nowrap;flex:0 0 auto;transition:all .15s;}
+.tab:hover{border-color:var(--orange);color:var(--text);}
+.tab.active{background:var(--orange);color:#1a1206;border-color:var(--orange);font-weight:600;}
+
+.panel-title{display:flex;align-items:center;justify-content:space-between;margin:2px 0 12px;gap:8px;}
+.panel-title h2{font-family:var(--display);font-size:16px;letter-spacing:.03em;margin:0;text-transform:uppercase;color:var(--text);}
+.live-dot{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;color:var(--muted);}
+.live-dot i{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;}
+
+.filters{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+.filters select{flex:1;min-width:120px;background:var(--panel);border:1px solid var(--border);color:var(--text);font-family:var(--body);font-size:13px;padding:9px 8px;border-radius:7px;}
+
+.card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:13px 14px;margin-bottom:10px;}
+.card.flagged{border-color:var(--red);opacity:.7;}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.vendor-name{font-family:var(--body);font-weight:600;font-size:14.5px;color:var(--text);margin:0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.habitual-tag{font-family:var(--mono);font-size:9px;background:var(--panel-2);color:var(--orange);border:1px solid var(--border);padding:2px 6px;border-radius:10px;text-transform:uppercase;}
+.commune-line{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:3px;}
+.badge{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:20px;white-space:nowrap;}
+.badge.dispo{background:var(--green-dim);color:var(--green);}
+.badge.rupture{background:var(--red-dim);color:var(--red);}
+.card-meta{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-family:var(--mono);font-size:11.5px;color:var(--muted);flex-wrap:wrap;gap:6px;}
+.card-meta a{color:var(--orange);text-decoration:none;}
+.price{color:var(--orange);font-weight:600;}
+.stale-tag{display:inline-block;margin-top:8px;font-family:var(--mono);font-size:10px;color:var(--grey);border:1px dashed var(--border);padding:2px 7px;border-radius:5px;}
+.flag-tag{display:inline-block;margin-top:8px;margin-left:6px;font-family:var(--mono);font-size:10px;color:var(--red);border:1px dashed var(--red);padding:2px 7px;border-radius:5px;}
+
+.trust-row{display:flex;gap:8px;margin-top:10px;}
+.trust-btn{flex:1;font-family:var(--mono);font-size:10.5px;background:var(--panel-2);border:1px solid var(--border);color:var(--muted);padding:7px 6px;border-radius:6px;cursor:pointer;text-align:center;}
+.trust-btn.confirm:hover{border-color:var(--green);color:var(--green);}
+.trust-btn.dispute:hover{border-color:var(--red);color:var(--red);}
+.trust-btn:disabled{opacity:.4;cursor:default;}
+
+.empty{text-align:center;color:var(--muted);font-family:var(--body);font-size:13px;padding:30px 10px;border:1px dashed var(--border);border-radius:10px;}
+
+.map-toggle{display:flex;gap:6px;margin-bottom:12px;}
+.map-toggle button{flex:1;font-family:var(--mono);font-size:11px;background:var(--panel);border:1px solid var(--border);color:var(--muted);padding:8px;border-radius:6px;cursor:pointer;text-transform:uppercase;letter-spacing:.05em;}
+.map-toggle button.active{border-color:var(--orange);color:var(--orange);}
+.map-note{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin:-4px 0 14px;}
+.map-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;}
+.tile{aspect-ratio:1.15;border-radius:9px;border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:4px;text-align:center;transition:transform .1s;position:relative;}
+.tile:active{transform:scale(.96);}
+.tile-name{font-family:var(--body);font-weight:600;font-size:11px;color:var(--text);line-height:1.15;}
+.tile-status{font-family:var(--mono);font-size:9px;margin-top:3px;letter-spacing:.04em;text-transform:uppercase;}
+.tile.dispo{background:var(--green-dim);border-color:var(--green);}
+.tile.dispo .tile-status{color:var(--green);}
+.tile.rupture{background:var(--red-dim);border-color:var(--red);}
+.tile.rupture .tile-status{color:var(--red);}
+.tile.nodata{background:var(--panel);}
+.tile.nodata .tile-status{color:var(--grey);}
+.watch-star{position:absolute;top:4px;right:5px;font-size:11px;color:var(--orange);}
+.legend{display:flex;gap:14px;justify-content:center;margin-top:14px;font-family:var(--mono);font-size:10.5px;color:var(--muted);flex-wrap:wrap;}
+.legend span{display:inline-flex;align-items:center;gap:5px;}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
+.dot.g{background:var(--green);} .dot.r{background:var(--red);} .dot.n{background:var(--grey);}
+
+.precise-map-wrap{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px;}
+.precise-empty{text-align:center;color:var(--muted);font-family:var(--body);font-size:12.5px;padding:20px;}
+
+.commune-detail{margin-top:16px;}
+.commune-detail-title{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--orange);margin:0 0 10px;display:flex;justify-content:space-between;align-items:center;}
+.watch-btn{font-family:var(--mono);font-size:10.5px;background:var(--panel-2);border:1px solid var(--border);color:var(--muted);padding:5px 10px;border-radius:16px;cursor:pointer;}
+.watch-btn.active{border-color:var(--orange);color:var(--orange);}
+
+.feed-item{display:flex;gap:10px;padding:11px 0;border-bottom:1px solid var(--border);}
+.feed-item:last-child{border-bottom:none;}
+.feed-dot{width:9px;height:9px;border-radius:50%;margin-top:5px;flex:0 0 auto;}
+.feed-dot.g{background:var(--green);} .feed-dot.r{background:var(--red);}
+.feed-text{font-family:var(--body);font-size:13px;color:var(--text);line-height:1.4;}
+.feed-text b{font-weight:600;}
+.feed-time{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:2px;}
+.watchlist-box{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:12px 13px;margin-bottom:14px;}
+.watchlist-title{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 8px;}
+.watchlist-chips{display:flex;gap:6px;flex-wrap:wrap;}
+.chip{font-family:var(--mono);font-size:11px;background:var(--panel-2);border:1px solid var(--border);color:var(--orange);padding:5px 10px;border-radius:16px;}
+.chip button{background:none;border:none;color:var(--muted);margin-left:6px;cursor:pointer;font-size:11px;}
+
+.form-group{margin-bottom:13px;}
+.form-group label{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.form-group input,.form-group select{width:100%;background:var(--panel);border:1px solid var(--border);color:var(--text);font-family:var(--body);font-size:14px;padding:10px 11px;border-radius:7px;}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:var(--orange);}
+.status-choice{display:flex;gap:8px;}
+.status-btn{flex:1;padding:12px 8px;border-radius:8px;border:1px solid var(--border);background:var(--panel);color:var(--muted);font-family:var(--body);font-weight:600;font-size:13.5px;cursor:pointer;text-align:center;transition:all .15s;}
+.status-btn.sel-dispo{background:var(--green-dim);border-color:var(--green);color:var(--green);}
+.status-btn.sel-rupture{background:var(--red-dim);border-color:var(--red);color:var(--red);}
+.geo-btn{width:100%;background:var(--panel-2);border:1px solid var(--border);color:var(--muted);font-family:var(--mono);font-size:11.5px;padding:9px;border-radius:7px;cursor:pointer;margin-bottom:4px;}
+.geo-btn.ok{border-color:var(--green);color:var(--green);}
+.submit-btn{width:100%;background:var(--orange);color:#1a1206;border:none;font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:.03em;text-transform:uppercase;padding:13px;border-radius:8px;cursor:pointer;margin-top:6px;}
+.submit-btn:disabled{opacity:.5;cursor:default;}
+.form-msg{font-family:var(--mono);font-size:11.5px;text-align:center;margin-top:10px;color:var(--green);}
+.form-note{font-family:var(--mono);font-size:10px;color:var(--grey);text-align:center;margin-top:14px;line-height:1.5;}
+.vendor-bar{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:11px 13px;margin-bottom:14px;}
+.vendor-bar-name{font-family:var(--body);font-weight:600;font-size:13px;color:var(--text);}
+.vendor-bar-phone{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:2px;}
+.link-btn{background:none;border:none;color:var(--orange);font-family:var(--mono);font-size:11.5px;text-decoration:underline;cursor:pointer;padding:0;text-align:center;width:100%;margin-top:10px;}
+.pending-note{font-family:var(--mono);font-size:11px;color:var(--orange);background:var(--panel-2);border:1px dashed var(--orange);border-radius:8px;padding:10px;text-align:center;margin-top:10px;line-height:1.5;}
+@media (prefers-reduced-motion: reduce){ *{transition:none !important;} }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="config-warning" id="configWarning">
+    ⚠️ <b>Firebase non configuré.</b><br>
+    Ouvrez ce fichier, cherchez <code>firebaseConfig</code> en bas de page, et remplacez les valeurs par celles de votre propre projet Firebase (Console Firebase → Paramètres du projet → Vos applications → SDK config). Tant que ce n'est pas fait, les signalements ne pourront pas être enregistrés.
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="header">
+    <p class="eyebrow">Abidjan · Gaz domestique</p>
+    <h1 class="title">GAZ <span>DISPO</span></h1>
+    <p class="subtitle">Qui a du gaz, où, maintenant — signalé par les points de vente.</p>
+  </div>
+
+  <div class="gauge-wrap">
+    <svg id="gaugeSvg" width="220" height="130" viewBox="0 0 220 130"></svg>
+    <div class="gauge-readout" id="gaugeReadout">—</div>
+    <div class="gauge-label">Disponibilité ville, 12h, hors signalements contestés</div>
+    <div class="gauge-sub" id="gaugeSub">connexion…</div>
+    <div class="loc-row">
+      <button class="loc-btn" id="locBtn">📍 Activer ma position (distance &amp; carte précise)</button>
+    </div>
+    <div class="loc-row" id="installRow" style="display:none;">
+      <button class="loc-btn" id="installBtn">⬇️ Installer l'application</button>
+    </div>
+    <p class="gauge-sub" id="iosInstallHint" style="display:none;margin-top:8px;">Sur iPhone : appuyez sur Partager (□↑) puis « Sur l'écran d'accueil »</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="liste">Liste</button>
+    <button class="tab" data-tab="carte">Carte</button>
+    <button class="tab" data-tab="alertes">Alertes</button>
+    <button class="tab" data-tab="signaler">Signaler</button>
+  </div>
+
+  <div class="tabview" id="view-liste">
+    <div class="panel-title">
+      <h2>Points de vente</h2>
+      <span class="live-dot"><i></i>en direct</span>
+    </div>
+    <div class="filters">
+      <select id="filterCommune"><option value="">Toutes communes</option></select>
+      <select id="filterStatus">
+        <option value="">Tous statuts</option>
+        <option value="dispo">Disponible</option>
+        <option value="rupture">Rupture</option>
+      </select>
+      <select id="sortMode">
+        <option value="recent">Plus récents</option>
+        <option value="distance">Plus proches</option>
+      </select>
+    </div>
+    <div id="listeContainer"></div>
+  </div>
+
+  <div class="tabview" id="view-carte" style="display:none;">
+    <div class="panel-title">
+      <h2>Carte</h2>
+      <span class="live-dot"><i></i>en direct</span>
+    </div>
+    <div class="map-toggle">
+      <button id="toggleSchematic" class="active">Vue communes</button>
+      <button id="togglePrecise">Vue précise (GPS)</button>
+    </div>
+
+    <div id="schematicMapView">
+      <p class="map-note">Disposition schématique, pas à l'échelle. Touchez une commune pour le détail et pour la suivre.</p>
+      <div class="map-grid" id="mapGrid"></div>
+      <div class="legend">
+        <span><i class="dot g"></i>Gaz disponible</span>
+        <span><i class="dot r"></i>Rupture</span>
+        <span><i class="dot n"></i>Pas de donnée récente</span>
+      </div>
+      <div class="commune-detail" id="communeDetail"></div>
+    </div>
+
+    <div id="preciseMapView" style="display:none;">
+      <p class="map-note">Positions GPS réelles envoyées par les points de vente au moment du signalement.</p>
+      <div class="precise-map-wrap">
+        <svg id="preciseSvg" width="100%" height="300" viewBox="0 0 300 300"></svg>
+      </div>
+      <div class="legend">
+        <span><i class="dot g"></i>Disponible</span>
+        <span><i class="dot r"></i>Rupture</span>
+        <span>Vous : ⧫</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabview" id="view-alertes" style="display:none;">
+    <div class="panel-title">
+      <h2>Derniers signalements</h2>
+      <span class="live-dot"><i></i>en direct</span>
+    </div>
+    <div class="watchlist-box">
+      <p class="watchlist-title">Communes suivies (alertes automatiques pendant que l'app est ouverte)</p>
+      <div class="watchlist-chips" id="watchlistChips"></div>
+    </div>
+    <div id="feedContainer"></div>
+  </div>
+
+  <div class="tabview" id="view-signaler" style="display:none;">
+    <div class="panel-title"><h2>Signaler mon stock</h2></div>
+
+    <div id="vendorGate">
+      <p class="map-note" style="margin-top:0;">Réservé aux points de vente enregistrés. Entrez votre téléphone vendeur et votre code pour publier une disponibilité.</p>
+      <div class="form-group">
+        <label>Téléphone vendeur</label>
+        <input type="tel" id="gate_phone" placeholder="Ex : 0700000000" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label>Code vendeur (PIN)</label>
+        <input type="password" inputmode="numeric" id="gate_pin" placeholder="••••" autocomplete="off">
+      </div>
+      <button type="button" class="submit-btn" id="gateBtn">Déverrouiller</button>
+      <div class="form-msg" id="gateMsg"></div>
+      <button type="button" class="link-btn" id="showRegisterBtn">Pas encore de compte vendeur ? S'inscrire</button>
+    </div>
+
+    <div id="vendorRegisterBox" style="display:none;">
+      <p class="map-note" style="margin-top:0;">Créez votre compte vendeur. Il sera activé après validation par l'administrateur de l'application — vous ne pourrez signaler qu'une fois votre compte approuvé.</p>
+      <div class="form-group">
+        <label>Nom du point de vente</label>
+        <input type="text" id="reg_vendor" placeholder="Ex : Dépôt Gaz Koumassi Sicogi" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label>Téléphone du point de vente</label>
+        <input type="tel" id="reg_phone" placeholder="Ex : 0700000000" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label>Choisissez un code vendeur (4 à 6 chiffres)</label>
+        <input type="password" inputmode="numeric" id="reg_pin" placeholder="••••" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label>Confirmez le code</label>
+        <input type="password" inputmode="numeric" id="reg_pin2" placeholder="••••" autocomplete="off">
+      </div>
+      <button type="button" class="submit-btn" id="registerBtn">Envoyer ma demande d'inscription</button>
+      <div class="form-msg" id="registerMsg"></div>
+      <button type="button" class="link-btn" id="backToLoginBtn">J'ai déjà un compte — se connecter</button>
+    </div>
+
+    <div id="vendorFormWrap" style="display:none;">
+      <div class="vendor-bar">
+        <div>
+          <div class="vendor-bar-name" id="vendorBarName"></div>
+          <div class="vendor-bar-phone" id="vendorBarPhone"></div>
+        </div>
+        <button type="button" class="watch-btn" id="vendorLogout">Changer de compte</button>
+      </div>
+      <form id="reportForm">
+        <div class="form-group">
+          <label>Commune</label>
+          <select id="f_commune" required></select>
+        </div>
+        <div class="form-group">
+          <label>Quartier (optionnel)</label>
+          <input type="text" id="f_quartier" placeholder="Ex : Sicogi, Zone 4, Rue des Jardins…">
+        </div>
+        <div class="form-group">
+          <label>Position GPS (recommandé, plus fiable que la commune seule)</label>
+          <button type="button" class="geo-btn" id="geoBtn">📍 Utiliser ma position actuelle</button>
+        </div>
+        <div class="form-group">
+          <label>Statut</label>
+          <div class="status-choice">
+            <button type="button" class="status-btn" id="btn_dispo">✓ Disponible</button>
+            <button type="button" class="status-btn" id="btn_rupture">✕ Rupture</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Prix bouteille (FCFA, optionnel)</label>
+          <input type="number" id="f_price" placeholder="Ex : 6500" min="0">
+        </div>
+        <button type="submit" class="submit-btn" id="submitBtn">Publier le signalement</button>
+        <div class="form-msg" id="formMsg"></div>
+      </form>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import {
+  getFirestore, collection, addDoc, doc, setDoc, updateDoc, getDoc, increment,
+  onSnapshot, query, orderBy, limit as fsLimit
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+import {
+  getMessaging, getToken, onMessage, isSupported as isFcmSupported
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-messaging.js";
+
+/* ============================================================
+   A REMPLIR : collez ici la configuration de VOTRE projet Firebase
+   (Console Firebase -> Paramètres du projet -> Vos applications -> SDK config)
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyCP4ZpM0RIyUm5wHrkRjCVc2AB7Wd0eoV8",
+  authDomain: "gaz-alerte.firebaseapp.com",
+  projectId: "gaz-alerte",
+  storageBucket: "gaz-alerte.firebasestorage.app",
+  messagingSenderId: "247054671233",
+  appId: "1:247054671233:web:0ab068fa8f45748f1a9c80"
+};
+/* ============================================================ */
+
+/* ============================================================
+   NOTIFICATIONS PUSH (téléphone fermé) — Firebase Cloud Messaging
+   1) Console Firebase -> Paramètres du projet -> Cloud Messaging
+      -> "Certificats Web Push" -> Générer une paire de clés -> collez-la ici
+   2) Déployez les Cloud Functions fournies (functions/index.js) et
+      ajustez FUNCTIONS_BASE si votre région diffère de us-central1
+   ============================================================ */
+const VAPID_KEY = "BAAvK-KFD8Hhvq0pFmQkauTjHiym1IYMRlQpt2sAOecQGxFeqIQ84ro4ZoKvPmOn4BTo425BV66ayaNqqODGmk0";
+const FUNCTIONS_BASE = "https://us-central1-gaz-alerte.cloudfunctions.net";
+/* ============================================================ */
+
+const CONFIG_IS_SET = !Object.values(firebaseConfig).some(v => String(v).startsWith("REMPLACER"));
+const PUSH_IS_SET = !VAPID_KEY.startsWith("REMPLACER");
+
+let app = null, db = null, reportsCol = null, fcmMessaging = null;
+if(CONFIG_IS_SET){
+  try{
+    app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    reportsCol = collection(db, "reports");
+  }catch(e){
+    console.error("Firebase init error:", e);
+  }
+}else{
+  document.getElementById('configWarning').style.display = 'block';
+}
+
+const COMMUNES = [
+  {name:"Anyama", row:1, col:2, lat:5.4956, lon:-4.0517},
+  {name:"Abobo", row:2, col:1, lat:5.4189, lon:-4.0167},
+  {name:"Bingerville", row:2, col:4, lat:5.3558, lon:-3.8894},
+  {name:"Adjamé", row:3, col:1, lat:5.3639, lon:-4.0281},
+  {name:"Cocody", row:3, col:3, lat:5.3489, lon:-3.9861},
+  {name:"Attécoubé", row:4, col:1, lat:5.3389, lon:-4.0389},
+  {name:"Plateau", row:4, col:2, lat:5.3197, lon:-4.0225},
+  {name:"Yopougon", row:5, col:1, lat:5.3350, lon:-4.0864},
+  {name:"Treichville", row:5, col:2, lat:5.2914, lon:-4.0069},
+  {name:"Koumassi", row:5, col:3, lat:5.2903, lon:-3.9622},
+  {name:"Port-Bouët", row:5, col:4, lat:5.2519, lon:-3.9319},
+  {name:"Songon", row:6, col:1, lat:5.3167, lon:-4.2167},
+  {name:"Marcory", row:6, col:2, lat:5.2933, lon:-3.9822},
+];
+
+const FRESH_WINDOW_MS = 12 * 60 * 60 * 1000;
+const DISPUTE_THRESHOLD = 3;
+const LAT_MIN=5.15, LAT_MAX=5.50, LON_MIN=-4.25, LON_MAX=-3.85;
+
+let REPORTS = [];
+let selectedStatus = null;
+let selectedMapCommune = null;
+let userLoc = null;
+let formGeo = null;
+let votedIds = JSON.parse(localStorage.getItem('gazdispo-voted-ids') || '[]');
+let watchlist = JSON.parse(localStorage.getItem('gazdispo-watchlist') || '[]');
+let mapMode = 'schematic';
+let vendorSession = JSON.parse(localStorage.getItem('gazdispo-vendor') || 'null');
+
+function timeAgo(ts){
+  const diff = Date.now() - ts;
+  const min = Math.floor(diff/60000);
+  if(min < 1) return "à l'instant";
+  if(min < 60) return `il y a ${min} min`;
+  const h = Math.floor(min/60);
+  if(h < 24) return `il y a ${h} h`;
+  const d = Math.floor(h/24);
+  return `il y a ${d} j`;
+}
+function isFresh(ts){ return (Date.now() - ts) <= FRESH_WINDOW_MS; }
+function isFlagged(r){
+  const disputes = r.disputes || 0;
+  const confirmations = r.confirmations || 0;
+  return (disputes - confirmations) >= DISPUTE_THRESHOLD;
+}
+function haversine(lat1, lon1, lat2, lon2){
+  const R = 6371;
+  const dLat = (lat2-lat1) * Math.PI/180;
+  const dLon = (lon2-lon1) * Math.PI/180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+function saveVoted(){ localStorage.setItem('gazdispo-voted-ids', JSON.stringify(votedIds)); }
+function saveWatchlist(){ localStorage.setItem('gazdispo-watchlist', JSON.stringify(watchlist)); }
+function vendorReportCount(phone){ if(!phone) return 0; return REPORTS.filter(r => r.phone === phone).length; }
+function latestByCommune(){
+  const map = {};
+  for(const r of REPORTS){
+    if(isFlagged(r)) continue;
+    if(!map[r.commune]) map[r.commune] = r;
+  }
+  return map;
+}
+
+function drawGauge(pct){
+  const svg = document.getElementById('gaugeSvg');
+  const cx=110, cy=110, r=90;
+  function pt(a){ return [cx + r*Math.cos(a), cy - r*Math.sin(a)]; }
+  const [sx,sy] = pt(Math.PI);
+  const [ex,ey] = pt(0);
+  const arcBg = `M ${sx} ${sy} A ${r} ${r} 0 0 1 ${ex} ${ey}`;
+  const angle = Math.PI - ((pct||0)/100)*Math.PI;
+  const [mx,my] = pt(angle);
+  const arcVal = `M ${sx} ${sy} A ${r} ${r} 0 0 1 ${mx} ${my}`;
+  let color = "#4b5164";
+  if(pct !== null){ color = pct >= 60 ? "#37c77f" : pct >= 30 ? "#ffa630" : "#ff5c5c"; }
+  const needleLen = r - 14;
+  const na = pct===null ? Math.PI/2 : angle;
+  const nx = cx + needleLen*Math.cos(na);
+  const ny = cy - needleLen*Math.sin(na);
+  svg.innerHTML = `
+    <path d="${arcBg}" fill="none" stroke="#242b38" stroke-width="14" stroke-linecap="round"/>
+    ${pct!==null ? `<path d="${arcVal}" fill="none" stroke="${color}" stroke-width="14" stroke-linecap="round"/>` : ''}
+    <circle cx="${cx}" cy="${cy}" r="5" fill="${color}"/>
+    <line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="${color}" stroke-width="3" stroke-linecap="round"/>
+  `;
+}
+
+function updateGauge(){
+  const byCommune = latestByCommune();
+  const fresh = Object.values(byCommune).filter(r => isFresh(r.timestamp));
+  const readout = document.getElementById('gaugeReadout');
+  const sub = document.getElementById('gaugeSub');
+  if(fresh.length === 0){
+    drawGauge(null);
+    readout.textContent = "—";
+    sub.textContent = CONFIG_IS_SET ? "aucune donnée fiable récente" : "Firebase non configuré";
+    return;
+  }
+  const dispoCount = fresh.filter(r => r.status === 'dispo').length;
+  const pct = Math.round((dispoCount/fresh.length)*100);
+  drawGauge(pct);
+  readout.textContent = pct + "%";
+  sub.textContent = `${dispoCount}/${fresh.length} commune(s) avec du gaz`;
+}
+
+function populateCommuneSelects(){
+  const filterSel = document.getElementById('filterCommune');
+  const formSel = document.getElementById('f_commune');
+  filterSel.innerHTML = '<option value="">Toutes communes</option>' +
+    COMMUNES.map(c=>`<option value="${c.name}">${c.name}</option>`).join('');
+  formSel.innerHTML = '<option value="" disabled selected>Choisir une commune…</option>' +
+    COMMUNES.map(c=>`<option value="${c.name}">${c.name}</option>`).join('');
+}
+
+function distanceLabel(r){
+  if(!userLoc || r.lat == null || r.lon == null) return null;
+  const d = haversine(userLoc.lat, userLoc.lon, r.lat, r.lon);
+  return d < 1 ? `${Math.round(d*1000)} m` : `${d.toFixed(1)} km`;
+}
+
+function renderListe(){
+  const container = document.getElementById('listeContainer');
+  const communeF = document.getElementById('filterCommune').value;
+  const statusF = document.getElementById('filterStatus').value;
+  const sortMode = document.getElementById('sortMode').value;
+
+  let items = REPORTS.filter(r=>{
+    if(communeF && r.commune !== communeF) return false;
+    if(statusF && r.status !== statusF) return false;
+    return true;
+  });
+
+  if(sortMode === 'distance' && userLoc){
+    items = items.filter(r => r.lat != null && r.lon != null);
+    items.sort((a,b)=> haversine(userLoc.lat,userLoc.lon,a.lat,a.lon) - haversine(userLoc.lat,userLoc.lon,b.lat,b.lon));
+  }
+
+  if(items.length === 0){
+    container.innerHTML = `<div class="empty">Aucun signalement pour ces filtres.<br>${sortMode==='distance' && !userLoc ? 'Activez votre position pour trier par distance.' : 'Soyez le premier à signaler.'}</div>`;
+    return;
+  }
+
+  container.innerHTML = items.slice(0,100).map(r=>{
+    const flagged = isFlagged(r);
+    const dist = distanceLabel(r);
+    const habitual = vendorReportCount(r.phone) >= 3;
+    const already = votedIds.includes(r.id);
+    return `
+    <div class="card ${flagged ? 'flagged' : ''}">
+      <div class="card-top">
+        <div>
+          <p class="vendor-name">${escapeHtml(r.vendorName)} ${habitual ? '<span class="habitual-tag">Vendeur habituel</span>' : ''}</p>
+          <p class="commune-line">${escapeHtml(r.commune)}${r.quartier ? ' · ' + escapeHtml(r.quartier) : ''}${dist ? ' · ' + dist : ''}</p>
+        </div>
+        <span class="badge ${r.status === 'dispo' ? 'dispo' : 'rupture'}">${r.status === 'dispo' ? 'Disponible' : 'Rupture'}</span>
+      </div>
+      <div class="card-meta">
+        <span>${r.price ? `<span class="price">${Number(r.price).toLocaleString('fr-FR')} FCFA</span>` : ''}</span>
+        <span>${timeAgo(r.timestamp)}</span>
+      </div>
+      ${r.phone ? `<div class="card-meta" style="margin-top:4px;"><a href="tel:${escapeAttr(r.phone)}">📞 ${escapeHtml(r.phone)}</a><span></span></div>` : ''}
+      ${!isFresh(r.timestamp) ? `<span class="stale-tag">info ancienne</span>` : ''}
+      ${flagged ? `<span class="flag-tag">signalé comme peu fiable</span>` : ''}
+      <div class="trust-row">
+        <button class="trust-btn confirm" data-id="${r.id}" data-vote="confirm" ${already ? 'disabled' : ''}>👍 Ça confirme (${r.confirmations||0})</button>
+        <button class="trust-btn dispute" data-id="${r.id}" data-vote="dispute" ${already ? 'disabled' : ''}>👎 Faux (${r.disputes||0})</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  container.querySelectorAll('.trust-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> vote(btn.dataset.id, btn.dataset.vote));
+  });
+}
+
+async function vote(id, kind){
+  if(!db){ showToast("Firebase non configuré."); return; }
+  if(votedIds.includes(id)) return;
+  try{
+    await updateDoc(doc(db, "reports", id), {
+      [kind === 'confirm' ? 'confirmations' : 'disputes']: increment(1)
+    });
+    votedIds.push(id);
+    saveVoted();
+  }catch(e){
+    showToast("Erreur lors du vote : " + e.message);
+  }
+}
+
+function renderMap(){
+  const grid = document.getElementById('mapGrid');
+  const byCommune = latestByCommune();
+  const maxRow = Math.max(...COMMUNES.map(c=>c.row));
+  grid.style.gridTemplateRows = `repeat(${maxRow}, 1fr)`;
+
+  grid.innerHTML = COMMUNES.map(c=>{
+    const r = byCommune[c.name];
+    let cls = 'nodata', label = 'Pas de donnée';
+    if(r && isFresh(r.timestamp)){
+      cls = r.status === 'dispo' ? 'dispo' : 'rupture';
+      label = r.status === 'dispo' ? 'Disponible' : 'Rupture';
+    } else if(r){
+      label = 'Info ancienne';
+    }
+    const watched = watchlist.includes(c.name);
+    return `<div class="tile ${cls}" style="grid-row:${c.row};grid-column:${c.col};" data-commune="${escapeAttr(c.name)}">
+      ${watched ? '<span class="watch-star">★</span>' : ''}
+      <div class="tile-name">${escapeHtml(c.name)}</div>
+      <div class="tile-status">${label}</div>
+    </div>`;
+  }).join('');
+
+  grid.querySelectorAll('.tile').forEach(t=>{
+    t.addEventListener('click', ()=>{
+      selectedMapCommune = t.getAttribute('data-commune');
+      renderCommuneDetail();
+    });
+  });
+
+  if(selectedMapCommune) renderCommuneDetail();
+  renderPreciseMap();
+}
+
+function renderCommuneDetail(){
+  const box = document.getElementById('communeDetail');
+  if(!selectedMapCommune){ box.innerHTML=''; return; }
+  const watched = watchlist.includes(selectedMapCommune);
+  const items = REPORTS.filter(r=>r.commune === selectedMapCommune).slice(0,8);
+  box.innerHTML = `
+    <p class="commune-detail-title">
+      <span>${escapeHtml(selectedMapCommune)} — derniers signalements</span>
+      <button class="watch-btn ${watched ? 'active' : ''}" id="watchToggle">${watched ? '★ Suivi' : '☆ Suivre'}</button>
+    </p>` +
+    (items.length === 0
+      ? `<div class="empty">Aucun signalement pour cette commune.</div>`
+      : items.map(r=>`
+        <div class="card ${isFlagged(r) ? 'flagged' : ''}">
+          <div class="card-top">
+            <div>
+              <p class="vendor-name">${escapeHtml(r.vendorName)}</p>
+              <p class="commune-line">${r.quartier ? escapeHtml(r.quartier) : ''}</p>
+            </div>
+            <span class="badge ${r.status === 'dispo' ? 'dispo' : 'rupture'}">${r.status === 'dispo' ? 'Disponible' : 'Rupture'}</span>
+          </div>
+          <div class="card-meta"><span>${r.price ? `<span class="price">${Number(r.price).toLocaleString('fr-FR')} FCFA</span>` : ''}</span><span>${timeAgo(r.timestamp)}</span></div>
+        </div>
+      `).join(''));
+
+  document.getElementById('watchToggle').addEventListener('click', ()=>{
+    toggleWatch(selectedMapCommune);
+    renderCommuneDetail();
+    renderMap();
+    renderWatchlistChips();
+  });
+}
+
+function toggleWatch(commune){
+  if(watchlist.includes(commune)){
+    watchlist = watchlist.filter(c=>c!==commune);
+    saveWatchlist();
+    unsubscribeTopics([commune]);
+  }else{
+    watchlist.push(commune);
+    saveWatchlist();
+    enablePushForWatchlist([commune]);
+  }
+}
+
+/* ---------- Notifications push (app fermée) ---------- */
+let fcmToken = null;
+
+async function initPush(){
+  if(!PUSH_IS_SET || !app) return;
+  if(!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  try{
+    const supported = await isFcmSupported().catch(()=>false);
+    if(!supported) return;
+    fcmMessaging = getMessaging(app);
+    onMessage(fcmMessaging, (payload)=>{
+      const title = payload.notification?.title || 'GAZ DISPO';
+      const body = payload.notification?.body || '';
+      showToast(`🔔 ${title} — ${body}`);
+    });
+    if(Notification.permission === 'granted'){
+      await refreshFcmToken();
+    }
+  }catch(e){
+    console.error('Erreur init push:', e);
+  }
+}
+
+async function refreshFcmToken(){
+  try{
+    const reg = await navigator.serviceWorker.register('firebase-messaging-sw.js');
+    fcmToken = await getToken(fcmMessaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: reg });
+    if(fcmToken && watchlist.length){
+      await subscribeTopics(watchlist);
+    }
+    return fcmToken;
+  }catch(e){
+    console.error('Erreur récupération token FCM:', e);
+    return null;
+  }
+}
+
+async function enablePushForWatchlist(communes){
+  if(!('Notification' in window)){
+    showToast("Les notifications ne sont pas supportées sur ce navigateur.");
+    return;
+  }
+  let perm = Notification.permission;
+  if(perm === 'default'){
+    perm = await Notification.requestPermission().catch(()=> 'denied');
+  }
+  if(perm !== 'granted'){
+    showToast("Notifications refusées — vous ne serez alerté que si l'app reste ouverte.");
+    return;
+  }
+  if(!PUSH_IS_SET){
+    return; // clé VAPID non configurée : alertes limitées à l'app ouverte
+  }
+  if(!fcmMessaging){ await initPush(); }
+  if(!fcmToken){
+    await refreshFcmToken();
+    return; // refreshFcmToken abonne déjà toute la watchlist
+  }
+  await subscribeTopics(communes);
+}
+
+async function subscribeTopics(communes){
+  if(!fcmToken || !PUSH_IS_SET) return;
+  try{
+    await fetch(FUNCTIONS_BASE + '/subscribeTopic', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ token: fcmToken, communes })
+    });
+  }catch(e){
+    console.error('Erreur abonnement push:', e);
+  }
+}
+
+async function unsubscribeTopics(communes){
+  if(!fcmToken || !PUSH_IS_SET) return;
+  try{
+    await fetch(FUNCTIONS_BASE + '/unsubscribeTopic', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ token: fcmToken, communes })
+    });
+  }catch(e){
+    console.error('Erreur désabonnement push:', e);
+  }
+}
+
+function project(lat, lon){
+  const x = ((lon - LON_MIN) / (LON_MAX - LON_MIN)) * 300;
+  const y = 300 - ((lat - LAT_MIN) / (LAT_MAX - LAT_MIN)) * 300;
+  return [x, y];
+}
+
+function renderPreciseMap(){
+  const svg = document.getElementById('preciseSvg');
+  const geoReports = REPORTS.filter(r => r.lat != null && r.lon != null && isFresh(r.timestamp) && !isFlagged(r));
+  let dots = geoReports.map(r=>{
+    const [x,y] = project(r.lat, r.lon);
+    const color = r.status === 'dispo' ? '#37c77f' : '#ff5c5c';
+    return `<circle cx="${x}" cy="${y}" r="6" fill="${color}" fill-opacity="0.85" stroke="#12151c" stroke-width="1.5"/>`;
+  }).join('');
+  let userDot = '';
+  if(userLoc){
+    const [ux,uy] = project(userLoc.lat, userLoc.lon);
+    userDot = `<text x="${ux}" y="${uy}" font-size="16" text-anchor="middle" fill="#ffa630">⧫</text>`;
+  }
+  const gridBg = `<rect x="0" y="0" width="300" height="300" fill="#161c26" stroke="#2a3140"/>`;
+  svg.innerHTML = gridBg + dots + userDot;
+
+  const wrap = document.getElementById('preciseMapView');
+  if(geoReports.length === 0){
+    wrap.querySelector('.precise-map-wrap').style.display = 'none';
+    if(!wrap.querySelector('.precise-empty')){
+      const p = document.createElement('div');
+      p.className = 'precise-empty';
+      p.textContent = "Aucun signalement avec position GPS pour l'instant.";
+      wrap.appendChild(p);
+    }
+  }else{
+    wrap.querySelector('.precise-map-wrap').style.display = 'block';
+    const existing = wrap.querySelector('.precise-empty');
+    if(existing) existing.remove();
+  }
+}
+
+function renderWatchlistChips(){
+  const box = document.getElementById('watchlistChips');
+  if(watchlist.length === 0){
+    box.innerHTML = `<span style="font-family:var(--mono);font-size:11px;color:var(--muted);">Aucune commune suivie — allez dans l'onglet Carte pour en suivre une.</span>`;
+    return;
+  }
+  box.innerHTML = watchlist.map(c=>`<span class="chip">${escapeHtml(c)}<button data-c="${escapeAttr(c)}">✕</button></span>`).join('');
+  box.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      toggleWatch(b.dataset.c);
+      renderWatchlistChips();
+      renderMap();
+    });
+  });
+}
+
+function renderFeed(){
+  const container = document.getElementById('feedContainer');
+  const items = REPORTS.slice(0,25);
+  if(items.length === 0){
+    container.innerHTML = `<div class="empty">Aucune activité pour l'instant.</div>`;
+    return;
+  }
+  container.innerHTML = items.map(r=>`
+    <div class="feed-item">
+      <span class="feed-dot ${r.status === 'dispo' ? 'g' : 'r'}"></span>
+      <div>
+        <div class="feed-text"><b>${escapeHtml(r.vendorName)}</b> (${escapeHtml(r.commune)}) a signalé : ${r.status === 'dispo' ? 'gaz disponible' : 'rupture de stock'}${r.price ? ` à ${Number(r.price).toLocaleString('fr-FR')} FCFA` : ''}.${isFlagged(r) ? ' <span style="color:var(--red)">(contesté par la communauté)</span>' : ''}</div>
+        <div class="feed-time">${timeAgo(r.timestamp)}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function showToast(text){
+  const t = document.getElementById('toast');
+  t.textContent = text;
+  t.style.display = 'block';
+  clearTimeout(showToast._timer);
+  showToast._timer = setTimeout(()=>{ t.style.display = 'none'; }, 8000);
+}
+
+function requestUserLocation(btn){
+  if(!('geolocation' in navigator)){
+    showToast("Géolocalisation non disponible sur cet appareil.");
+    return;
+  }
+  btn.textContent = "📍 Localisation en cours…";
+  navigator.geolocation.getCurrentPosition(
+    (pos)=>{
+      userLoc = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+      btn.textContent = "📍 Position activée";
+      btn.classList.add('active');
+      renderListe(); renderPreciseMap();
+    },
+    ()=>{
+      btn.textContent = "📍 Activer ma position (distance & carte précise)";
+      showToast("Position refusée ou indisponible.");
+    },
+    { enableHighAccuracy:true, timeout:8000 }
+  );
+}
+
+function requestFormGeo(btn){
+  if(!('geolocation' in navigator)){
+    showToast("Géolocalisation non disponible sur cet appareil.");
+    return;
+  }
+  btn.textContent = "📍 Localisation en cours…";
+  navigator.geolocation.getCurrentPosition(
+    (pos)=>{
+      formGeo = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+      btn.textContent = "✓ Position capturée";
+      btn.classList.add('ok');
+    },
+    ()=>{
+      formGeo = null;
+      btn.textContent = "📍 Utiliser ma position actuelle";
+      showToast("Position refusée — le signalement restera basé sur la commune.");
+    },
+    { enableHighAccuracy:true, timeout:8000 }
+  );
+}
+
+/* ---------- Portail vendeur (verrou par téléphone + code PIN) ---------- */
+function saveVendorSession(v){
+  vendorSession = v;
+  localStorage.setItem('gazdispo-vendor', JSON.stringify(v));
+}
+function clearVendorSession(){
+  vendorSession = null;
+  localStorage.removeItem('gazdispo-vendor');
+}
+function showVendorForm(){
+  document.getElementById('vendorGate').style.display = 'none';
+  document.getElementById('vendorFormWrap').style.display = 'block';
+  document.getElementById('vendorBarName').textContent = vendorSession.name;
+  document.getElementById('vendorBarPhone').textContent = vendorSession.phone;
+}
+function showVendorGate(){
+  document.getElementById('vendorFormWrap').style.display = 'none';
+  document.getElementById('vendorRegisterBox').style.display = 'none';
+  document.getElementById('vendorGate').style.display = 'block';
+  document.getElementById('gate_pin').value = '';
+}
+function showRegisterBox(){
+  document.getElementById('vendorGate').style.display = 'none';
+  document.getElementById('vendorRegisterBox').style.display = 'block';
+  document.getElementById('registerMsg').textContent = '';
+}
+
+async function registerVendor(){
+  const msgEl = document.getElementById('registerMsg');
+  const btn = document.getElementById('registerBtn');
+  const name = document.getElementById('reg_vendor').value.trim();
+  const phone = document.getElementById('reg_phone').value.trim();
+  const pin = document.getElementById('reg_pin').value.trim();
+  const pin2 = document.getElementById('reg_pin2').value.trim();
+
+  if(!db){ msgEl.style.color = '#ff5c5c'; msgEl.textContent = "Firebase non configuré."; return; }
+  if(!name || !phone || !pin){
+    msgEl.style.color = '#ff5c5c'; msgEl.textContent = "Merci de remplir tous les champs."; return;
+  }
+  if(!/^\d{4,6}$/.test(pin)){
+    msgEl.style.color = '#ff5c5c'; msgEl.textContent = "Le code doit contenir 4 à 6 chiffres."; return;
+  }
+  if(pin !== pin2){
+    msgEl.style.color = '#ff5c5c'; msgEl.textContent = "Les deux codes ne correspondent pas."; return;
+  }
+
+  btn.disabled = true;
+  msgEl.style.color = '#8d94a6';
+  msgEl.textContent = "Envoi en cours…";
+
+  try{
+    const existing = await getDoc(doc(db, "vendors", phone));
+    if(existing.exists()){
+      msgEl.style.color = '#ff5c5c';
+      msgEl.textContent = "Ce téléphone est déjà enregistré. Utilisez « J'ai déjà un compte » pour vous connecter, ou contactez l'administrateur.";
+      btn.disabled = false;
+      return;
+    }
+    await setDoc(doc(db, "vendors", phone), {
+      name, phone, pin, status: 'pending', createdAt: Date.now()
+    });
+    msgEl.style.color = '#37c77f';
+    msgEl.textContent = "Demande envoyée ! Vous pourrez signaler dès que votre compte sera validé par l'administrateur.";
+    document.getElementById('reg_vendor').value = '';
+    document.getElementById('reg_phone').value = '';
+    document.getElementById('reg_pin').value = '';
+    document.getElementById('reg_pin2').value = '';
+  }catch(e){
+    msgEl.style.color = '#ff5c5c';
+    msgEl.textContent = "Échec de l'inscription : " + e.message + " (vérifiez vos règles Firestore)";
+  }
+  btn.disabled = false;
+}
+
+async function tryUnlockVendor(phone, pin, msgEl){
+  if(!db){
+    msgEl.style.color = '#ff5c5c';
+    msgEl.textContent = "Firebase non configuré.";
+    return false;
+  }
+  if(!phone || !pin){
+    msgEl.style.color = '#ff5c5c';
+    msgEl.textContent = "Entrez votre téléphone et votre code.";
+    return false;
+  }
+  try{
+    const snap = await getDoc(doc(db, "vendors", phone));
+    if(!snap.exists()){
+      msgEl.style.color = '#ff5c5c';
+      msgEl.textContent = "Ce téléphone n'est pas enregistré comme vendeur.";
+      return false;
+    }
+    const v = snap.data();
+    if(String(v.pin) !== String(pin)){
+      msgEl.style.color = '#ff5c5c';
+      msgEl.textContent = "Code vendeur incorrect.";
+      return false;
+    }
+    if(v.status === 'pending'){
+      msgEl.style.color = '#ffa630';
+      msgEl.textContent = "Compte en attente de validation par l'administrateur.";
+      return false;
+    }
+    if(v.status === 'rejected'){
+      msgEl.style.color = '#ff5c5c';
+      msgEl.textContent = "Compte refusé — contactez l'administrateur.";
+      return false;
+    }
+    if(v.status !== 'approved'){
+      msgEl.style.color = '#ff5c5c';
+      msgEl.textContent = "Compte non approuvé.";
+      return false;
+    }
+    saveVendorSession({ phone, name: v.name || phone });
+    return true;
+  }catch(e){
+    msgEl.style.color = '#ff5c5c';
+    msgEl.textContent = "Erreur de vérification : " + e.message;
+    return false;
+  }
+}
+
+function setupVendorGate(){
+  document.getElementById('gateBtn').addEventListener('click', async ()=>{
+    const msgEl = document.getElementById('gateMsg');
+    const btn = document.getElementById('gateBtn');
+    const phone = document.getElementById('gate_phone').value.trim();
+    const pin = document.getElementById('gate_pin').value.trim();
+    btn.disabled = true;
+    msgEl.style.color = '#8d94a6';
+    msgEl.textContent = "Vérification…";
+    const ok = await tryUnlockVendor(phone, pin, msgEl);
+    btn.disabled = false;
+    if(ok){
+      msgEl.textContent = '';
+      showVendorForm();
+    }
+  });
+
+  document.getElementById('vendorLogout').addEventListener('click', ()=>{
+    clearVendorSession();
+    showVendorGate();
+  });
+
+  document.getElementById('showRegisterBtn').addEventListener('click', showRegisterBox);
+  document.getElementById('backToLoginBtn').addEventListener('click', showVendorGate);
+  document.getElementById('registerBtn').addEventListener('click', registerVendor);
+
+  // Session déjà enregistrée sur cet appareil : on la re-vérifie silencieusement
+  // (au cas où le compte aurait été refusé/désactivé côté admin).
+  if(vendorSession){
+    (async ()=>{
+      if(db){
+        try{
+          const snap = await getDoc(doc(db, "vendors", vendorSession.phone));
+          if(snap.exists() && snap.data().status === 'approved'){
+            showVendorForm();
+          }else{
+            clearVendorSession();
+            showVendorGate();
+          }
+        }catch(e){
+          showVendorForm(); // hors-ligne : on laisse l'accès, l'écriture Firestore restera de toute façon protégée par les règles
+        }
+      }
+    })();
+  }
+}
+
+function setupForm(){
+  const btnDispo = document.getElementById('btn_dispo');
+  const btnRupture = document.getElementById('btn_rupture');
+  btnDispo.addEventListener('click', ()=>{
+    selectedStatus = 'dispo';
+    btnDispo.classList.add('sel-dispo'); btnRupture.classList.remove('sel-rupture');
+  });
+  btnRupture.addEventListener('click', ()=>{
+    selectedStatus = 'rupture';
+    btnRupture.classList.add('sel-rupture'); btnDispo.classList.remove('sel-dispo');
+  });
+
+  document.getElementById('geoBtn').addEventListener('click', (e)=> requestFormGeo(e.currentTarget));
+
+  document.getElementById('reportForm').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const msg = document.getElementById('formMsg');
+    const submitBtn = document.getElementById('submitBtn');
+
+    if(!db){
+      msg.style.color = '#ff5c5c';
+      msg.textContent = "Firebase non configuré — voir le message en haut de page.";
+      return;
+    }
+    if(!vendorSession){
+      msg.style.color = '#ff5c5c';
+      msg.textContent = "Session vendeur expirée — reconnectez-vous.";
+      showVendorGate();
+      return;
+    }
+
+    const vendorName = vendorSession.name;
+    const phone = vendorSession.phone;
+    const commune = document.getElementById('f_commune').value;
+    const quartier = document.getElementById('f_quartier').value.trim();
+    const price = document.getElementById('f_price').value;
+
+    if(!vendorName || !phone || !commune || !selectedStatus){
+      msg.style.color = '#ff5c5c';
+      msg.textContent = "Merci de remplir le nom, le téléphone, la commune et le statut.";
+      return;
+    }
+
+    submitBtn.disabled = true;
+    msg.style.color = '#8d94a6';
+    msg.textContent = "Publication en cours…";
+
+    const priorCount = vendorReportCount(phone);
+
+    const report = {
+      vendorName, phone, commune, quartier,
+      status: selectedStatus,
+      price: price ? Number(price) : null,
+      lat: formGeo ? formGeo.lat : null,
+      lon: formGeo ? formGeo.lon : null,
+      confirmations: 0,
+      disputes: 0,
+      timestamp: Date.now()
+    };
+
+    try{
+      await addDoc(reportsCol, report);
+      msg.style.color = '#37c77f';
+      msg.textContent = priorCount >= 2
+        ? "Signalement publié. Vendeur reconnu comme habituel — merci !"
+        : "Signalement publié. Merci !";
+      document.getElementById('reportForm').reset();
+      selectedStatus = null;
+      formGeo = null;
+      btnDispo.classList.remove('sel-dispo'); btnRupture.classList.remove('sel-rupture');
+      document.getElementById('geoBtn').classList.remove('ok');
+      document.getElementById('geoBtn').textContent = '📍 Utiliser ma position actuelle';
+    }catch(e){
+      msg.style.color = '#ff5c5c';
+      msg.textContent = "Échec : " + e.message + " (vérifiez vos règles de sécurité Firestore)";
+    }
+    submitBtn.disabled = false;
+  });
+}
+
+function setupTabs(){
+  document.querySelectorAll('.tab').forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.tabview').forEach(v=>v.style.display='none');
+      document.getElementById('view-' + tab.dataset.tab).style.display='block';
+    });
+  });
+}
+
+function setupMapToggle(){
+  const schBtn = document.getElementById('toggleSchematic');
+  const preBtn = document.getElementById('togglePrecise');
+  schBtn.addEventListener('click', ()=>{
+    mapMode='schematic';
+    schBtn.classList.add('active'); preBtn.classList.remove('active');
+    document.getElementById('schematicMapView').style.display='block';
+    document.getElementById('preciseMapView').style.display='none';
+  });
+  preBtn.addEventListener('click', ()=>{
+    mapMode='precise';
+    preBtn.classList.add('active'); schBtn.classList.remove('active');
+    document.getElementById('schematicMapView').style.display='none';
+    document.getElementById('preciseMapView').style.display='block';
+    renderPreciseMap();
+  });
+}
+
+function escapeHtml(str){
+  if(!str) return '';
+  return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function escapeAttr(str){ return escapeHtml(str); }
+
+function setupInstall(){
+  const row = document.getElementById('installRow');
+  const btn = document.getElementById('installBtn');
+  const iosHint = document.getElementById('iosInstallHint');
+  let deferredPrompt = null;
+
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  if(isStandalone) return; // already installed, nothing to show
+
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+
+  window.addEventListener('beforeinstallprompt', (e)=>{
+    e.preventDefault();
+    deferredPrompt = e;
+    row.style.display = 'flex';
+  });
+
+  btn.addEventListener('click', async ()=>{
+    if(!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const choice = await deferredPrompt.userChoice;
+    if(choice.outcome === 'accepted'){
+      showToast("Application installée ✅");
+    }
+    deferredPrompt = null;
+    row.style.display = 'none';
+  });
+
+  window.addEventListener('appinstalled', ()=>{
+    row.style.display = 'none';
+    showToast("Application installée ✅");
+  });
+
+  if(isIOS){
+    iosHint.style.display = 'block';
+  }
+
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('sw.js').catch((e)=> console.error('SW error:', e));
+  }
+}
+
+function init(){
+  populateCommuneSelects();
+  setupTabs();
+  setupVendorGate();
+  setupForm();
+  setupMapToggle();
+  setupInstall();
+  initPush();
+  drawGauge(null);
+
+  document.getElementById('filterCommune').addEventListener('change', renderListe);
+  document.getElementById('filterStatus').addEventListener('change', renderListe);
+  document.getElementById('sortMode').addEventListener('change', renderListe);
+  document.getElementById('locBtn').addEventListener('click', (e)=> requestUserLocation(e.currentTarget));
+
+  renderListe(); renderMap(); renderFeed(); renderWatchlistChips();
+
+  if(db){
+    const q = query(reportsCol, orderBy("timestamp", "desc"), fsLimit(300));
+    let firstLoad = true;
+    onSnapshot(q, (snapshot)=>{
+      const prevIds = new Set(REPORTS.map(r=>r.id));
+      REPORTS = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      if(!firstLoad){
+        const newDispo = REPORTS.filter(r => !prevIds.has(r.id) && watchlist.includes(r.commune) && r.status === 'dispo');
+        if(newDispo.length > 0){
+          const names = [...new Set(newDispo.map(r=>r.commune))].join(', ');
+          showToast(`🟢 Nouveau : gaz disponible signalé à ${names}`);
+          if('Notification' in window && Notification.permission === 'granted'){
+            try{ new Notification('GAZ DISPO', { body: `Gaz disponible signalé à ${names}` }); }catch(e){}
+          }
+        }
+      }
+      firstLoad = false;
+
+      updateGauge(); renderListe(); renderMap(); renderFeed(); renderWatchlistChips();
+    }, (err)=>{
+      console.error(err);
+      showToast("Erreur de connexion à Firebase : " + err.message);
+    });
+  }
+}
+
+init();
+</script>
+</body>
+</html>
