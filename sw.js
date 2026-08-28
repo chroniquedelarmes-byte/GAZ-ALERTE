@@ -1,4 +1,4 @@
-const CACHE_NAME = "gaz-dispo-v1";
+const CACHE_NAME = "gaz-Alerte";
 const APP_SHELL = [
   "./index.html",
   "./manifest.json",
