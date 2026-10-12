@@ -152,7 +152,6 @@ body{-webkit-font-smoothing:antialiased;}
 .status-btn.sel-rupture{background:var(--red-dim);border-color:var(--red);color:var(--red);}
 .geo-btn{width:100%;background:var(--panel-2);border:1px solid var(--border);color:var(--muted);font-family:var(--mono);font-size:11.5px;padding:9px;border-radius:7px;cursor:pointer;margin-bottom:4px;}
 .geo-btn.ok{border-color:var(--green);color:var(--green);}
-.avatar{width:36px;height:36px;border-radius:50%;object-fit:cover;margin-right:8px;border:2px solid var(--green);flex-shrink:0;}
 .submit-btn{width:100%;background:var(--orange);color:#1a1206;border:none;font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:.03em;text-transform:uppercase;padding:13px;border-radius:8px;cursor:pointer;margin-top:6px;}
 .submit-btn:disabled{opacity:.5;cursor:default;}
 .form-msg{font-family:var(--mono);font-size:11.5px;text-align:center;margin-top:10px;color:var(--green);}
@@ -285,7 +284,7 @@ body{-webkit-font-smoothing:antialiased;}
     <button type="button" class="link-btn" id="aboutToggle" style="margin-top:8px;">ℹ️ À propos de l'application</button>
     <div class="about-box" id="aboutBox" style="display:none;">
       <p>GAZ ALERTE est une application qui met en relation les vendeurs et les clients de gaz domestique à Abidjan. Elle permet aux vendeurs de signaler facilement la disponibilité de leur stock, et aux clients de savoir en temps réel où trouver du gaz — sans se déplacer inutilement.</p>
-      <p><b style="color:var(--text);">Vos données</b> — Les signalements (nom du point de vente, téléphone, commune, position GPS si activée) sont visibles publiquement dans l'application, car ils servent à informer les clients. Le téléphone des clients n'est jamais demandé ; seule la position GPS est utilisée, uniquement sur l'appareil, pour calculer les distances et n'est pas enregistrée sur nos serveurs. Pour toute question ou demande de suppression de données, contactez l'administrateur de l'application.</p>
+      <p><b style="color:var(--text);">Vos données</b> — Les signalements (nom du point de vente, téléphone, commune, position GPS si activée) sont visibles publiquement dans l'application, car ils servent à informer les clients. Le téléphone des clients n'est jamais demandé. La position GPS d'un client sert, sur son appareil, à calculer les distances ; lorsqu'il demande un itinéraire, sa position et celle du point de vente sont transmises au service de calcul d'itinéraire OSRM, et ne sont pas enregistrées sur nos serveurs. Les vendeurs enregistrent la position de leur boutique à l'inscription. Pour toute question ou demande de suppression de données, contactez l'administrateur de l'application.</p>
       <p class="about-copyright">© 2026 Logbo Alohoury Emmanuel. Tous droits réservés.</p>
     </div>
   </div>
@@ -418,16 +417,6 @@ body{-webkit-font-smoothing:antialiased;}
         <input type="password" inputmode="numeric" id="reg_pin2" placeholder="••••" autocomplete="off">
       </div>
       <div class="form-group">
-        <label>Photo de vous (obligatoire)</label>
-        <input type="file" id="reg_face" accept="image/*" capture="user">
-        <p class="map-note" style="margin:6px 0 0;">Un selfie, visage bien visible. Votre photo sera visible par les clients pour mieux vous repérer.</p>
-      </div>
-      <div class="form-group">
-        <label>Photo de votre boutique (obligatoire)</label>
-        <input type="file" id="reg_shop" accept="image/*" capture="environment">
-        <p class="map-note" style="margin:6px 0 0;">Prenez la devanture de votre boutique, avec les bouteilles de gaz si possible.</p>
-      </div>
-      <div class="form-group">
         <label>Position de votre boutique (obligatoire)</label>
         <button type="button" class="geo-btn" id="regGeoBtn">📍 Enregistrer la position de ma boutique</button>
         <p class="map-note" style="margin:6px 0 0;">Faites-le devant votre boutique, dehors ou près de la porte, avec la localisation activée. Elle sera utilisée pour placer tous vos signalements sur la carte.</p>
@@ -477,6 +466,7 @@ body{-webkit-font-smoothing:antialiased;}
   </div>
 
   <div class="app-footer">© 2026 Logbo Alohoury Emmanuel — GAZ ALERTE. Tous droits réservés.<br>
+    <button type="button" class="admin-link" id="adminOpenBtn">Administrateur</button>
   </div>
 
   <!-- QR code (application ou carte vendeur) -->
@@ -493,6 +483,49 @@ body{-webkit-font-smoothing:antialiased;}
     </div>
   </div>
   <div id="printArea" style="display:none;"></div>
+
+  <!-- Espace administrateur -->
+  <div class="admin-overlay" id="adminOverlay">
+    <div class="admin-wrap">
+      <div class="admin-head">
+        <h2>🛠️ Administrateur</h2>
+        <button type="button" class="watch-btn" id="adminClose">Fermer</button>
+      </div>
+
+      <div id="adminLoginBox">
+        <p class="map-note" style="margin-top:0;">Accès réservé à l'administrateur de GAZ ALERTE.</p>
+        <div class="form-group">
+          <label>E-mail administrateur</label>
+          <input type="email" id="adm_email" autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label>Mot de passe</label>
+          <input type="password" id="adm_pass" autocomplete="current-password">
+        </div>
+        <button type="button" class="submit-btn" id="adminLoginBtn">Se connecter</button>
+        <div class="form-msg" id="adminLoginMsg"></div>
+      </div>
+
+      <div id="adminPanel" style="display:none;">
+        <div class="vendor-bar">
+          <div>
+            <div class="vendor-bar-name">Connecté</div>
+            <div class="vendor-bar-phone" id="adminWho"></div>
+          </div>
+          <button type="button" class="watch-btn" id="adminLogoutBtn">Déconnexion</button>
+        </div>
+        <div class="form-msg" id="adminMsg" style="margin:0 0 6px;"></div>
+
+        <div class="admin-sec"><span id="adminVendorsTitle">Comptes vendeurs</span>
+          <button type="button" class="mini-btn del danger-all" id="adminDelAllVendors">Supprimer tous les vendeurs</button></div>
+        <div id="adminVendors"></div>
+
+        <div class="admin-sec"><span id="adminReportsTitle">Signalements</span>
+          <button type="button" class="mini-btn del danger-all" id="adminDelAllReports">Supprimer tous les signalements</button></div>
+        <div id="adminReports"></div>
+      </div>
+    </div>
+  </div>
 
   <div class="sos-overlay" id="sosOverlay">
     <div class="sos-sheet">
@@ -541,7 +574,7 @@ import {
   initializeFirestore, persistentLocalCache, persistentMultipleTabManager
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 import {
-  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
+  getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 
 /* ============================================================
@@ -573,10 +606,11 @@ const APP_PUBLIC_URL = "";
 
 const CONFIG_IS_SET = !Object.values(firebaseConfig).some(v => String(v).startsWith("REMPLACER"));
 
-let app = null, db = null, reportsCol = null;
+let app = null, db = null, reportsCol = null, auth = null;
 if(CONFIG_IS_SET){
   try{
     app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
     // Cache persistant : garde les dernières données visibles hors-ligne,
     // et met en attente les signalements écrits sans connexion pour les
     // envoyer automatiquement dès que le réseau revient.
@@ -625,7 +659,6 @@ let formGeo = null;
 let votedIds = JSON.parse(localStorage.getItem('gazdispo-voted-ids') || '[]');
 let watchlist = JSON.parse(localStorage.getItem('gazdispo-watchlist') || '[]');
 let mapMode = 'schematic';
-let VENDOR_PHOTOS = {};
 let vendorSession = JSON.parse(localStorage.getItem('gazdispo-vendor') || 'null');
 
 function timeAgo(ts){
@@ -726,14 +759,7 @@ function renderListe(){
   const statusF = document.getElementById('filterStatus').value;
   const sortMode = document.getElementById('sortMode').value;
 
-  const seenVendors = new Set();
-  const latestPerVendor = REPORTS.filter(r=>{
-    const key = r.phone || r.id;
-    if(seenVendors.has(key)) return false;
-    seenVendors.add(key);
-    return true;
-  });
-  let items = latestPerVendor.filter(r=>{
+  let items = REPORTS.filter(r=>{
     if(communeF && r.commune !== communeF) return false;
     if(statusF && r.status !== statusF) return false;
     return true;
@@ -768,14 +794,8 @@ function renderListe(){
         <span>${timeAgo(r.timestamp)}</span>
       </div>
       <div class="card-meta" style="margin-top:4px;">
-        <span style="display:flex;align-items:center;">
-          ${VENDOR_PHOTOS[r.phone] ? `<img class="avatar" src="${escapeAttr(VENDOR_PHOTOS[r.phone])}" alt="Photo du vendeur">` : ''}
-          ${r.phone ? `<a href="tel:${escapeAttr(r.phone)}">📞 ${escapeHtml(r.phone)}</a>` : ''}
-        </span>
-        <span style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
-          <button type="button" class="route-btn" data-route="${escapeAttr(r.id)}">🧭 Itinéraire</button>
-          ${r.lat != null && r.lon != null ? `<a class="route-btn" href="${mapsUrl(r)}" target="_blank" rel="noopener">🗺️ Maps</a>` : ''}
-        </span>
+        ${r.phone ? `<a href="tel:${escapeAttr(r.phone)}">📞 ${escapeHtml(r.phone)}</a>` : '<span></span>'}
+        <button type="button" class="route-btn" data-route="${escapeAttr(r.id)}">🧭 Itinéraire</button>
       </div>
       ${!isFresh(r.timestamp) ? `<span class="stale-tag">info ancienne</span>` : ''}
       ${flagged ? `<span class="flag-tag">signalé comme peu fiable</span>` : ''}
@@ -1245,10 +1265,6 @@ async function showRouteTo(id){
 }
 window.showRouteTo = showRouteTo;
 
-function mapsUrl(r){
-  return `https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lon}&travelmode=driving`;
-}
-
 function renderRouteBanner(r, res, approx){
   setRouteInfo(
     `🧭 Vers <b>${escapeHtml(r.vendorName)}</b> · ${escapeHtml(r.commune)}${r.quartier ? ' — ' + escapeHtml(r.quartier) : ''}` +
@@ -1256,7 +1272,6 @@ function renderRouteBanner(r, res, approx){
     `<div class="route-next" id="routeNext"></div>` +
     `<div class="route-sub" id="routeLive"></div>` +
     `<div class="admin-actions">` +
-      `<a class="route-btn" href="${mapsUrl(r)}" target="_blank" rel="noopener">🗺️ Ouvrir dans Google Maps</a>` +
       `<button type="button" class="mini-btn ok" id="routeVoiceBtn" onclick="toggleRouteVoice()">${routeVoiceOn ? '🔊 Voix activée' : '🔇 Voix coupée'}</button>` +
       `<button type="button" class="mini-btn del" onclick="stopRoute()">✕ Terminer</button>` +
     `</div>`
@@ -1378,7 +1393,7 @@ function onRoutePosition(p){
 function startRouteWatch(){
   stopRouteWatch();
   if(!('geolocation' in navigator)) return;
-  routeWatchId = navigator.geolocation.watchPosition(onRoutePosition, ()=>{ showToast("Signal GPS perdu. Vérifiez que la localisation reste activée."); }, {
+  routeWatchId = navigator.geolocation.watchPosition(onRoutePosition, ()=>{}, {
     enableHighAccuracy: true, maximumAge: 3000, timeout: 20000
   });
 }
@@ -1581,19 +1596,15 @@ function requestFormGeo(btn){
   );
 }
 
-/* ---------- Empreinte du code PIN (le code n'est plus stocké en clair) ---------- */
-async function hashPin(phone, pin){
-  const data = new TextEncoder().encode('gaz-alerte|' + phone + '|' + pin);
-  const buf = await crypto.subtle.digest('SHA-256', data);
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
-}
-
-function normalizeVendorPhone(raw){
-  let d = String(raw || '').replace(/\D/g, '');
-  if(d.startsWith('00225')) d = d.slice(5);
-  else if(d.startsWith('225') && d.length > 10) d = d.slice(3);
-  return d;
-}
+/* ---------- Comptes vendeurs : connexion par Firebase Authentication ---------- */
+// Chaque vendeur a un vrai compte Firebase (identifiant dérivé de son téléphone, mot de passe dérivé de son code).
+// Le code est donc vérifié par les serveurs de Firebase, avec blocage après trop d'essais, et n'est jamais stocké dans la base.
+const VENDOR_EMAIL_DOMAIN = '@vendeur.gazalerte.ci';
+function normPhone(raw){ return String(raw || '').replace(/\D/g, ''); }
+function vendorEmail(phone){ return phone + VENDOR_EMAIL_DOMAIN; }
+function isVendorEmail(email){ return String(email || '').endsWith(VENDOR_EMAIL_DOMAIN); }
+function vendorPassword(phone, pin){ return `gaz-${pin}-${phone}`; }
+let authBusy = false; // ignore les changements de session pendant une inscription ou une connexion
 
 /* ---------- QR code (application + carte vendeur) ---------- */
 function appUrl(){
@@ -1682,6 +1693,166 @@ function setupQR(){
   });
 }
 
+/* ---------- Espace administrateur (Firebase Authentication) ---------- */
+let adminUnsubVendors = null, adminUnsubReports = null;
+let ADMIN_VENDORS = [], ADMIN_REPORTS = [];
+
+function adminMsg(text, ok){
+  const el = document.getElementById('adminMsg');
+  el.style.color = ok ? '#37c77f' : '#ff5c5c';
+  el.textContent = text;
+}
+
+function renderAdminVendors(){
+  document.getElementById('adminVendorsTitle').textContent = `Comptes vendeurs (${ADMIN_VENDORS.length})`;
+  const box = document.getElementById('adminVendors');
+  if(ADMIN_VENDORS.length === 0){ box.innerHTML = '<div class="empty">Aucun compte vendeur.</div>'; return; }
+  const label = { pending:'En attente', approved:'Approuvé', rejected:'Refusé' };
+  box.innerHTML = ADMIN_VENDORS.map(v=>`
+    <div class="admin-row">
+      <b>${escapeHtml(v.name || v.phone)}</b><span class="pill ${escapeAttr(v.status || 'pending')}">${label[v.status] || escapeHtml(v.status || '')}</span>
+      <div class="meta">📞 ${escapeHtml(v.phone || v.id)}</div>
+      <div class="admin-actions">
+        ${v.status !== 'approved' ? `<button class="mini-btn ok" data-act="approve" data-id="${escapeAttr(v.id)}">✓ Approuver</button>` : ''}
+        ${v.status !== 'rejected' ? `<button class="mini-btn no" data-act="reject" data-id="${escapeAttr(v.id)}">Refuser</button>` : ''}
+        <button class="mini-btn del" data-act="delVendor" data-id="${escapeAttr(v.id)}">Supprimer le compte</button>
+        <button class="mini-btn del" data-act="delVendorAll" data-id="${escapeAttr(v.id)}">Supprimer compte + signalements</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderAdminReports(){
+  document.getElementById('adminReportsTitle').textContent = `Signalements (${ADMIN_REPORTS.length})`;
+  const box = document.getElementById('adminReports');
+  if(ADMIN_REPORTS.length === 0){ box.innerHTML = '<div class="empty">Aucun signalement.</div>'; return; }
+  box.innerHTML = ADMIN_REPORTS.slice(0,200).map(r=>`
+    <div class="admin-row">
+      <b>${escapeHtml(r.vendorName || '')}</b> <span class="pill ${r.status === 'dispo' ? 'approved' : 'rejected'}">${r.status === 'dispo' ? 'Disponible' : 'Rupture'}</span>
+      <div class="meta">${escapeHtml(r.commune || '')} · ${escapeHtml(r.phone || '')} · ${timeAgo(r.timestamp || 0)}</div>
+      <div class="admin-actions">
+        <button class="mini-btn del" data-act="delReport" data-id="${escapeAttr(r.id)}">Supprimer</button>
+      </div>
+    </div>`).join('');
+}
+
+async function deleteMany(refs){
+  // Suppression par lots (limite Firestore : 500 opérations par lot)
+  for(let i = 0; i < refs.length; i += 400){
+    const batch = writeBatch(db);
+    refs.slice(i, i + 400).forEach(r => batch.delete(r));
+    await batch.commit();
+  }
+}
+
+async function adminHandleAction(act, id){
+  try{
+    if(act === 'approve' || act === 'reject'){
+      await updateDoc(doc(db, 'vendors', id), { status: act === 'approve' ? 'approved' : 'rejected' });
+      adminMsg(act === 'approve' ? 'Compte approuvé.' : 'Compte refusé.', true);
+    }else if(act === 'delVendor'){
+      if(!confirm('Supprimer ce compte vendeur ?')) return;
+      await deleteDoc(doc(db, 'vendors', id));
+      adminMsg('Compte supprimé.', true);
+    }else if(act === 'delVendorAll'){
+      if(!confirm('Supprimer ce compte ET tous ses signalements ?')) return;
+      const refs = ADMIN_REPORTS.filter(r => r.phone === id).map(r => doc(db, 'reports', r.id));
+      refs.push(doc(db, 'vendors', id));
+      await deleteMany(refs);
+      adminMsg('Compte et signalements supprimés.', true);
+    }else if(act === 'delReport'){
+      if(!confirm('Supprimer ce signalement ?')) return;
+      await deleteDoc(doc(db, 'reports', id));
+      adminMsg('Signalement supprimé.', true);
+    }
+  }catch(e){
+    adminMsg('Échec : ' + e.message, false);
+  }
+}
+
+function startAdminListeners(){
+  stopAdminListeners();
+  adminUnsubVendors = onSnapshot(collection(db, 'vendors'), (snap)=>{
+    ADMIN_VENDORS = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a,b)=> (b.createdAt || 0) - (a.createdAt || 0));
+    renderAdminVendors();
+  }, (e)=> adminMsg('Lecture des vendeurs refusée : ' + e.message + ' (règles Firestore ?)', false));
+  adminUnsubReports = onSnapshot(query(reportsCol, orderBy('timestamp','desc')), (snap)=>{
+    ADMIN_REPORTS = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderAdminReports();
+  }, (e)=> adminMsg('Lecture des signalements refusée : ' + e.message, false));
+}
+function stopAdminListeners(){
+  if(adminUnsubVendors){ adminUnsubVendors(); adminUnsubVendors = null; }
+  if(adminUnsubReports){ adminUnsubReports(); adminUnsubReports = null; }
+  ADMIN_VENDORS = []; ADMIN_REPORTS = [];
+}
+
+function setupAdmin(){
+  const overlay = document.getElementById('adminOverlay');
+  const loginBox = document.getElementById('adminLoginBox');
+  const panel = document.getElementById('adminPanel');
+
+  document.getElementById('adminOpenBtn').addEventListener('click', ()=> overlay.classList.add('open'));
+  document.getElementById('adminClose').addEventListener('click', ()=> overlay.classList.remove('open'));
+
+  if(!app || !auth){ return; }
+
+  onAuthStateChanged(auth, (user)=>{
+    if(user && !isVendorEmail(user.email)){
+      loginBox.style.display = 'none';
+      panel.style.display = 'block';
+      document.getElementById('adminWho').textContent = user.email || '';
+      startAdminListeners();
+    }else{
+      stopAdminListeners();
+      panel.style.display = 'none';
+      loginBox.style.display = 'block';
+    }
+  });
+
+  document.getElementById('adminLoginBtn').addEventListener('click', async ()=>{
+    const msg = document.getElementById('adminLoginMsg');
+    const email = document.getElementById('adm_email').value.trim();
+    const pass = document.getElementById('adm_pass').value;
+    if(!email || !pass){ msg.style.color = '#ff5c5c'; msg.textContent = 'Entrez votre e-mail et votre mot de passe.'; return; }
+    msg.style.color = '#8d94a6'; msg.textContent = 'Connexion…';
+    try{
+      await signInWithEmailAndPassword(auth, email, pass);
+      msg.textContent = '';
+      document.getElementById('adm_pass').value = '';
+    }catch(e){
+      msg.style.color = '#ff5c5c';
+      msg.textContent = 'Connexion refusée : e-mail ou mot de passe incorrect.';
+    }
+  });
+
+  document.getElementById('adminLogoutBtn').addEventListener('click', ()=> signOut(auth));
+
+  panel.addEventListener('click', (e)=>{
+    const b = e.target.closest('button[data-act]');
+    if(b) adminHandleAction(b.dataset.act, b.dataset.id);
+  });
+
+  document.getElementById('adminDelAllVendors').addEventListener('click', async ()=>{
+    if(!confirm('Supprimer TOUS les comptes vendeurs ? Cette action est définitive.')) return;
+    if(!confirm('Dernière confirmation : supprimer tous les vendeurs ?')) return;
+    try{
+      await deleteMany(ADMIN_VENDORS.map(v => doc(db, 'vendors', v.id)));
+      adminMsg('Tous les comptes vendeurs ont été supprimés.', true);
+    }catch(e){ adminMsg('Échec : ' + e.message, false); }
+  });
+
+  document.getElementById('adminDelAllReports').addEventListener('click', async ()=>{
+    if(!confirm('Supprimer TOUS les signalements ? Cette action est définitive.')) return;
+    if(!confirm('Dernière confirmation : supprimer tous les signalements ?')) return;
+    try{
+      const snap = await getDocs(reportsCol);
+      await deleteMany(snap.docs.map(d => d.ref));
+      adminMsg('Tous les signalements ont été supprimés.', true);
+    }catch(e){ adminMsg('Échec : ' + e.message, false); }
+  });
+}
+
 /* ---------- Portail vendeur (verrou par téléphone + code PIN) ---------- */
 function saveVendorSession(v){
   vendorSession = v;
@@ -1735,129 +1906,122 @@ function requestRegGeo(btn){
   );
 }
 
-async function compressPhoto(file, maxSide = 480, quality = 0.6){
-  const url = URL.createObjectURL(file);
-  try{
-    const img = await new Promise((ok, ko)=>{ const i = new Image(); i.onload = ()=>ok(i); i.onerror = ()=>ko(new Error("photo illisible")); i.src = url; });
-    const k = Math.min(1, maxSide / Math.max(img.width, img.height));
-    const c = document.createElement('canvas');
-    c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
-    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-    return c.toDataURL('image/jpeg', quality);
-  } finally { URL.revokeObjectURL(url); }
-}
+function setVMsg(el, text, color){ el.style.color = color; el.textContent = text; }
+const C_RED = '#ff5c5c', C_GREEN = '#37c77f', C_ORANGE = '#ffa630', C_GREY = '#8d94a6';
 
 async function registerVendor(){
   const msgEl = document.getElementById('registerMsg');
   const btn = document.getElementById('registerBtn');
   const name = document.getElementById('reg_vendor').value.trim();
-  const phone = normalizeVendorPhone(document.getElementById('reg_phone').value);
+  const phone = normPhone(document.getElementById('reg_phone').value);
   const pin = document.getElementById('reg_pin').value.trim();
   const pin2 = document.getElementById('reg_pin2').value.trim();
 
-  if(!db){ msgEl.style.color = '#ff5c5c'; msgEl.textContent = "Firebase non configuré."; return; }
-  if(!name || !phone || !pin){
-    msgEl.style.color = '#ff5c5c'; msgEl.textContent = "Merci de remplir tous les champs."; return;
-  }
-  if(!/^\d{10}$/.test(phone)){
-    msgEl.style.color = '#ff5c5c'; msgEl.textContent = "Numéro invalide : entrez les 10 chiffres du téléphone (ex : 0700000000)."; return;
-  }
-  if(!/^\d{4,6}$/.test(pin)){
-    msgEl.style.color = '#ff5c5c'; msgEl.textContent = "Le code doit contenir 4 à 6 chiffres."; return;
-  }
-  if(pin !== pin2){
-    msgEl.style.color = '#ff5c5c'; msgEl.textContent = "Les deux codes ne correspondent pas."; return;
-  }
-  if(!regGeo){
-    msgEl.style.color = '#ff5c5c'; msgEl.textContent = "Enregistrez d'abord la position de votre boutique (bouton 📍)."; return;
-  }
-  const faceFile = document.getElementById('reg_face').files[0];
-  const shopFile = document.getElementById('reg_shop').files[0];
-  if(!faceFile || !shopFile){
-    msgEl.style.color = '#ff5c5c'; msgEl.textContent = "Ajoutez votre photo et la photo de votre boutique."; return;
-  }
+  if(!db || !auth){ setVMsg(msgEl, "Firebase non configuré.", C_RED); return; }
+  if(!name || !phone || !pin){ setVMsg(msgEl, "Merci de remplir tous les champs.", C_RED); return; }
+  if(name.length > 90){ setVMsg(msgEl, "Le nom du point de vente est trop long.", C_RED); return; }
+  if(!/^\d{8,15}$/.test(phone)){ setVMsg(msgEl, "Numéro de téléphone invalide (chiffres seulement).", C_RED); return; }
+  if(!/^\d{4,6}$/.test(pin)){ setVMsg(msgEl, "Le code doit contenir 4 à 6 chiffres.", C_RED); return; }
+  if(pin !== pin2){ setVMsg(msgEl, "Les deux codes ne correspondent pas.", C_RED); return; }
+  if(!regGeo){ setVMsg(msgEl, "Enregistrez d'abord la position de votre boutique (bouton 📍).", C_RED); return; }
 
   btn.disabled = true;
-  msgEl.style.color = '#8d94a6';
-  msgEl.textContent = "Envoi en cours…";
+  authBusy = true;
+  setVMsg(msgEl, "Envoi en cours…", C_GREY);
 
   try{
+    const email = vendorEmail(phone), pw = vendorPassword(phone, pin);
+    try{
+      await createUserWithEmailAndPassword(auth, email, pw);
+    }catch(e){
+      if(e.code === 'auth/email-already-in-use'){
+        // Numéro déjà connu : s'il s'agit du même code, on reprend l'inscription (ex. compte supprimé par l'administrateur)
+        try{
+          await signInWithEmailAndPassword(auth, email, pw);
+        }catch(e2){
+          setVMsg(msgEl, "Ce numéro est déjà inscrit avec un autre code. Utilisez « J'ai déjà un compte », ou contactez l'administrateur.", C_RED);
+          return;
+        }
+      }else{
+        throw e;
+      }
+    }
+
     const existing = await getDoc(doc(db, "vendors", phone));
     if(existing.exists()){
-      msgEl.style.color = '#ff5c5c';
-      msgEl.textContent = "Ce téléphone est déjà enregistré. Utilisez « J'ai déjà un compte » pour vous connecter, ou contactez l'administrateur.";
-      btn.disabled = false;
+      await signOut(auth);
+      setVMsg(msgEl, "Ce téléphone est déjà enregistré. Utilisez « J'ai déjà un compte » pour vous connecter.", C_RED);
       return;
     }
-    const photo = await compressPhoto(faceFile, 96, 0.6);
     await setDoc(doc(db, "vendors", phone), {
-      name, phone, pinHash: await hashPin(phone, pin), status: 'pending', createdAt: Date.now(),
-      lat: regGeo.lat, lon: regGeo.lon, photo
+      name, phone, status: 'pending', createdAt: Date.now(),
+      lat: regGeo.lat, lon: regGeo.lon
     });
-    const face = await compressPhoto(faceFile), shop = await compressPhoto(shopFile);
-    await setDoc(doc(db, "vendorPhotos", phone), { face, shop, createdAt: Date.now() });
-    msgEl.style.color = '#37c77f';
-    msgEl.textContent = "Demande envoyée ! Vous pourrez signaler dès que votre compte sera validé par l'administrateur.";
+    await signOut(auth);
+
+    setVMsg(msgEl, "Demande envoyée ! Vous pourrez signaler dès que votre compte sera validé par l'administrateur.", C_GREEN);
     document.getElementById('reg_vendor').value = '';
     document.getElementById('reg_phone').value = '';
     document.getElementById('reg_pin').value = '';
     document.getElementById('reg_pin2').value = '';
     regGeo = null;
-    document.getElementById('reg_face').value = '';
-    document.getElementById('reg_shop').value = '';
     const rg = document.getElementById('regGeoBtn');
     rg.classList.remove('ok');
     rg.textContent = '📍 Enregistrer la position de ma boutique';
   }catch(e){
-    msgEl.style.color = '#ff5c5c';
-    msgEl.textContent = "Échec de l'inscription : " + e.message + " (vérifiez vos règles Firestore)";
+    const c = e.code || '';
+    let text;
+    if(c === 'auth/operation-not-allowed') text = "La connexion par e-mail/mot de passe n'est pas activée dans Firebase.";
+    else if(c === 'auth/network-request-failed') text = "Pas de connexion internet. Réessayez.";
+    else if(c === 'auth/too-many-requests') text = "Trop d'essais. Patientez quelques minutes puis réessayez.";
+    else if(c === 'auth/weak-password') text = "Code trop simple, choisissez-en un autre.";
+    else if(c === 'permission-denied') text = "Inscription refusée par les règles de sécurité Firestore.";
+    else text = "Échec de l'inscription : " + (e.message || c);
+    setVMsg(msgEl, text, C_RED);
+    try{ await signOut(auth); }catch(_){}
+  }finally{
+    btn.disabled = false;
+    authBusy = false;
   }
-  btn.disabled = false;
 }
 
-async function tryUnlockVendor(phone, pin, msgEl){
-  phone = normalizeVendorPhone(phone);
-  if(!db){
-    msgEl.style.color = '#ff5c5c';
-    msgEl.textContent = "Firebase non configuré.";
-    return false;
-  }
-  if(!phone || !pin){
-    msgEl.style.color = '#ff5c5c';
-    msgEl.textContent = "Entrez votre téléphone et votre code.";
-    return false;
-  }
+async function tryUnlockVendor(phoneRaw, pin, msgEl){
+  const phone = normPhone(phoneRaw);
+  if(!db || !auth){ setVMsg(msgEl, "Firebase non configuré.", C_RED); return false; }
+  if(!phone || !pin){ setVMsg(msgEl, "Entrez votre téléphone et votre code.", C_RED); return false; }
+
+  authBusy = true;
   try{
+    try{
+      await signInWithEmailAndPassword(auth, vendorEmail(phone), vendorPassword(phone, pin));
+    }catch(e){
+      const c = e.code || '';
+      if(c === 'auth/too-many-requests') setVMsg(msgEl, "Trop d'essais. Patientez quelques minutes puis réessayez.", C_RED);
+      else if(c === 'auth/network-request-failed') setVMsg(msgEl, "Pas de connexion internet.", C_RED);
+      else setVMsg(msgEl, "Téléphone ou code vendeur incorrect (ou numéro non inscrit).", C_RED);
+      return false;
+    }
+
     const snap = await getDoc(doc(db, "vendors", phone));
     if(!snap.exists()){
-      msgEl.style.color = '#ff5c5c';
-      msgEl.textContent = "Ce téléphone n'est pas enregistré comme vendeur.";
+      await signOut(auth);
+      setVMsg(msgEl, "Ce téléphone n'est pas enregistré comme vendeur. Inscrivez-vous d'abord.", C_RED);
       return false;
     }
     const v = snap.data();
-    // Nouveaux comptes : code stocké sous forme d'empreinte (pinHash).
-    // Anciens comptes de test : code en clair (pin), encore accepté.
-    const pinOk = v.pinHash
-      ? (v.pinHash === await hashPin(phone, pin))
-      : (String(v.pin) === String(pin));
-    if(!pinOk){
-      msgEl.style.color = '#ff5c5c';
-      msgEl.textContent = "Code vendeur incorrect.";
-      return false;
-    }
     if(v.status === 'pending'){
-      msgEl.style.color = '#ffa630';
-      msgEl.textContent = "Compte en attente de validation par l'administrateur.";
+      await signOut(auth);
+      setVMsg(msgEl, "Compte en attente de validation par l'administrateur.", C_ORANGE);
       return false;
     }
     if(v.status === 'rejected'){
-      msgEl.style.color = '#ff5c5c';
-      msgEl.textContent = "Compte refusé — contactez l'administrateur.";
+      await signOut(auth);
+      setVMsg(msgEl, "Compte refusé — contactez l'administrateur.", C_RED);
       return false;
     }
     if(v.status !== 'approved'){
-      msgEl.style.color = '#ff5c5c';
-      msgEl.textContent = "Compte non approuvé.";
+      await signOut(auth);
+      setVMsg(msgEl, "Compte non approuvé.", C_RED);
       return false;
     }
     saveVendorSession({
@@ -1867,9 +2031,11 @@ async function tryUnlockVendor(phone, pin, msgEl){
     });
     return true;
   }catch(e){
-    msgEl.style.color = '#ff5c5c';
-    msgEl.textContent = "Erreur de vérification : " + e.message;
+    setVMsg(msgEl, "Erreur de vérification : " + (e.message || e.code), C_RED);
+    try{ await signOut(auth); }catch(_){}
     return false;
+  }finally{
+    authBusy = false;
   }
 }
 
@@ -1877,11 +2043,10 @@ function setupVendorGate(){
   document.getElementById('gateBtn').addEventListener('click', async ()=>{
     const msgEl = document.getElementById('gateMsg');
     const btn = document.getElementById('gateBtn');
-    const phone = document.getElementById('gate_phone').value.trim();
+    const phone = document.getElementById('gate_phone').value;
     const pin = document.getElementById('gate_pin').value.trim();
     btn.disabled = true;
-    msgEl.style.color = '#8d94a6';
-    msgEl.textContent = "Vérification…";
+    setVMsg(msgEl, "Vérification…", C_GREY);
     const ok = await tryUnlockVendor(phone, pin, msgEl);
     btn.disabled = false;
     if(ok){
@@ -1892,6 +2057,7 @@ function setupVendorGate(){
 
   document.getElementById('vendorLogout').addEventListener('click', ()=>{
     clearVendorSession();
+    if(auth) signOut(auth).catch(()=>{});
     showVendorGate();
   });
 
@@ -1900,17 +2066,19 @@ function setupVendorGate(){
   document.getElementById('registerBtn').addEventListener('click', registerVendor);
   document.getElementById('regGeoBtn').addEventListener('click', (e)=> requestRegGeo(e.currentTarget));
 
-  // Session déjà enregistrée sur cet appareil : on la re-vérifie silencieusement
-  // (au cas où le compte aurait été refusé/désactivé côté admin).
-  if(vendorSession){
-    (async ()=>{
-      if(db){
+  // Session restaurée automatiquement par Firebase au rechargement de la page :
+  // on re-vérifie que le compte est toujours approuvé (il a pu être refusé ou supprimé entre-temps).
+  if(auth){
+    onAuthStateChanged(auth, async (user)=>{
+      if(authBusy) return; // connexion ou inscription en cours : elle gère elle-même l'affichage
+      if(user && isVendorEmail(user.email)){
+        const phone = user.email.slice(0, -VENDOR_EMAIL_DOMAIN.length);
         try{
-          const snap = await getDoc(doc(db, "vendors", vendorSession.phone));
+          const snap = await getDoc(doc(db, "vendors", phone));
           if(snap.exists() && snap.data().status === 'approved'){
             const vd = snap.data();
             saveVendorSession({
-              phone: vendorSession.phone, name: vd.name || vendorSession.name,
+              phone, name: vd.name || phone,
               lat: (typeof vd.lat === 'number') ? vd.lat : null,
               lon: (typeof vd.lon === 'number') ? vd.lon : null
             });
@@ -1918,12 +2086,17 @@ function setupVendorGate(){
           }else{
             clearVendorSession();
             showVendorGate();
+            signOut(auth).catch(()=>{});
           }
         }catch(e){
-          showVendorForm(); // hors-ligne : on laisse l'accès, l'écriture Firestore restera de toute façon protégée par les règles
+          // hors-ligne : on garde l'accès déjà ouvert sur cet appareil
+          if(vendorSession && vendorSession.phone === phone) showVendorForm();
         }
+      }else{
+        if(vendorSession) clearVendorSession();
+        showVendorGate();
       }
-    })();
+    });
   }
 }
 
@@ -1951,7 +2124,7 @@ function setupForm(){
       msg.textContent = "Firebase non configuré — voir le message en haut de page.";
       return;
     }
-    if(!vendorSession){
+    if(!vendorSession || !auth || !auth.currentUser || auth.currentUser.email !== vendorEmail(vendorSession.phone)){
       msg.style.color = '#ff5c5c';
       msg.textContent = "Session vendeur expirée — reconnectez-vous.";
       showVendorGate();
@@ -1979,7 +2152,7 @@ function setupForm(){
     const report = {
       vendorName, phone, commune, quartier,
       status: selectedStatus,
-      price: (price && Number(price) > 0 && Number(price) <= 100000) ? Number(price) : null,
+      price: price ? Number(price) : null,
       // Position prise à l'instant si le vendeur l'a demandée, sinon position de sa boutique enregistrée à l'inscription
       lat: formGeo ? formGeo.lat : (vendorSession.lat ?? null),
       lon: formGeo ? formGeo.lon : (vendorSession.lon ?? null),
@@ -2195,10 +2368,6 @@ function setupInstall(){
   const iosHint = document.getElementById('iosInstallHint');
   let deferredPrompt = null;
 
-  if('serviceWorker' in navigator){
-    navigator.serviceWorker.register('sw.js').catch((e)=> console.error('SW error:', e));
-  }
-
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
   if(isStandalone) return; // already installed, nothing to show
 
@@ -2230,6 +2399,9 @@ function setupInstall(){
     iosHint.style.display = 'block';
   }
 
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('sw.js').catch((e)=> console.error('SW error:', e));
+  }
 }
 
 function init(){
@@ -2238,6 +2410,7 @@ function init(){
   setupSOS();
   setupVendorGate();
   setupQR();
+  setupAdmin();
   setupForm();
   setupMapToggle();
   setupInstall();
@@ -2266,13 +2439,6 @@ function init(){
   renderListe(); renderMap(); renderFeed(); renderWatchlistChips();
 
   if(db){
-    getDocs(collection(db, 'vendors')).then((snap)=>{
-      snap.forEach(d=>{
-        const v = d.data();
-        if(v.status === 'approved' && typeof v.photo === 'string' && v.photo.startsWith('data:image/')) VENDOR_PHOTOS[d.id] = v.photo;
-      });
-      renderListe();
-    }).catch(()=>{});
     const q = query(reportsCol, orderBy("timestamp", "desc"), fsLimit(300));
     let firstLoad = true;
     onSnapshot(q, (snapshot)=>{
